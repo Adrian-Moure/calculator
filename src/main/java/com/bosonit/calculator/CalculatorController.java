@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.corp.calculator.TracerImpl;
 
 import java.math.BigDecimal;
 
@@ -14,21 +15,32 @@ public class CalculatorController {
     @Autowired
     private CalculatorService calculatorService;
 
+    private TracerImpl tracer = new TracerImpl();
+
     @GetMapping("/add")
-    public ResponseEntity<BigDecimal> getAddition(
+    public ResponseEntity<ResultOutputDto> getAddition(
             @RequestParam(name="first", required = true) BigDecimal firstParameter,
             @RequestParam(name="second", required = true) BigDecimal secondParameter){
-        return new ResponseEntity<BigDecimal>(
-                calculatorService.additionOperation(firstParameter, secondParameter),
+
+        BigDecimal result = calculatorService.additionOperation(firstParameter, secondParameter);
+        tracer.trace(result);
+
+        return new ResponseEntity<ResultOutputDto>(
+                new ResultOutputDto("The result for the addition operation is: ", result),
                 HttpStatus.OK);
     }
 
     @GetMapping("/substract")
-    public ResponseEntity<BigDecimal> getSubstraction(
+    public ResponseEntity<ResultOutputDto> getSubstraction(
             @RequestParam(name="first", required = true) BigDecimal firstParameter,
             @RequestParam(name="second", required = true) BigDecimal secondParameter){
-        return new ResponseEntity<BigDecimal>(
-                calculatorService.substractionOperation(firstParameter, secondParameter),
+
+
+        BigDecimal result = calculatorService.substractionOperation(firstParameter, secondParameter);
+        tracer.trace(result);
+
+        return new ResponseEntity<ResultOutputDto>(
+                new ResultOutputDto("The result for the substract operation is: ", result),
                 HttpStatus.OK);
     }
 }
